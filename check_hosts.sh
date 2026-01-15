@@ -1,4 +1,11 @@
 #!/bin/bash
-while read -r ip rest; do
-    [[ $ip =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] && echo "Valid: $ip" || echo "Invalid: $ip"
-done < /etc/hosts
+cat /etc/hosts | while read line
+do
+    ip=$(echo $line | awk '{print $1}')
+    nume=$(echo $line | awk '{print $2}')
+    adresa=$(nslookup $nume 2>/dev/null | grep "Address:" | tail -1 | awk '{print $2}')
+    
+    if [[ "$ip" != "$adresa" ]]; then
+        echo "Bogus IP for $nume in /etc/hosts!"
+    fi
+done
